@@ -8,3 +8,6 @@ export const updateProfile = (formData) =>
 
 export const getUserProfileById = (userId, page = 1, limit = 10) =>
   API.get(`/user/profile/${userId}?page=${page}&limit=${limit}`);
+
+export const getAllUsers = () =>
+  API.get("/user/all");

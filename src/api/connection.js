@@ -5,3 +5,6 @@ export const sendConnection = (id) =>
 
 export const getConnections = () =>
   API.get("/connection/my");
+
+export const respondToConnection = (connectionId, action) =>
+  API.post(`/connection/respond/${connectionId}`, { action });

@@ -1,76 +1,110 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/layout/Layout";
-import { FaUserPlus, FaCheck, FaSearch } from "react-icons/fa";
+import { FaUserPlus, FaCheck, FaSearch, FaTimes, FaCommentDots } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import API from "../../api/index";
-import { sendConnection, getConnections } from "../../api/connection";
+import { sendConnection, getConnections, respondToConnection } from "../../api/connection";
+import { getAllUsers } from "../../api/user";
 import socket from "../../services/socket";
 import toast from "react-hot-toast";
 
 export default function Networking() {
-  const [connections, setConnections] = useState([]);
+  const [users, setUsers] = useState([]);
   const [myConnections, setMyConnections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Safely grab current user to filter out self
   const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+  const currentUserId = currentUser._id || currentUser.id;
+
+  const fetchData = async () => {
+    try {
+      const [usersRes, connectionsRes] = await Promise.all([
+        getAllUsers(),
+        getConnections()
+      ]);
+      
+      setUsers(usersRes.data || []);
+      setMyConnections(connectionsRes.data || []);
+    } catch (e) {
+       console.error("Failed to fetch network:", e);
+       toast.error("Failed to load network components");
+    } finally {
+       setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [feedRes, connectionsRes] = await Promise.all([
-          API.get("/post/feed"),
-          getConnections()
-        ]);
-        
-        // Backend missing User Search Route: Extract unique authors from the global network Feed
-        const globalPosts = feedRes.data?.posts || [];
-        const allUsersMap = [...new Map(globalPosts.map(p => [p.author?._id || p.author?.id, p.author])).values()];
-        const allUsers = allUsersMap.filter(u => u != null);
-        
-        const myConnParams = connectionsRes.data || []; // Note: typical Node response returns array directly or inside data
-        
-        // Remove currently logged in user from network view
-        setConnections(allUsers.filter(u => u._id !== currentUser._id && u.id !== currentUser.id));
-        setMyConnections(myConnParams);
-      } catch (e) {
-         console.error("Failed to fetch network:", e);
-         toast.error("Failed to load network components");
-      } finally {
-         setLoading(false);
+    fetchData();
+
+    // Listen for connection response updates
+    const handleNotification = (data) => {
+      if (data.type === "connection_response" || data.type === "connection_request") {
+        fetchData();
       }
     };
-    fetchData();
+    socket.on("notification", handleNotification);
+    return () => socket.off("notification", handleNotification);
   }, []);
 
-  const toggleConnection = async (userId) => {
+  const handleSendConnection = async (userId) => {
     try {
       await sendConnection(userId);
       toast.success("Connection request sent!");
 
-      // 🔔 Emit real-time socket event so receiver gets an instant notification
-      const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+      // 🔔 Emit real-time socket event
       socket.emit("sendConnectionRequest", {
-        senderId: currentUser._id || currentUser.id,
+        senderId: currentUserId,
         receiverId: userId,
       });
 
-      // Optimistic update
-      setMyConnections([...myConnections, { recipient: { _id: userId }, status: "pending" }]);
+      fetchData();
     } catch(e) {
       console.error(e);
       toast.error(e.response?.data?.msg || "Failed to send connection");
     }
   };
 
-  const getStatus = (userId) => {
-     // Validate arrays based on active user mapped connection architecture (assuming mapped object with .recipient or .sender)
-     // Fallback UI status check based on how standard backend populates pending vs connected vs none
-     const conn = myConnections.find(c => 
-       (c.recipient?._id === userId || c.sender?._id === userId || c.recipient === userId || c.sender === userId)
-     );
-     if (!conn) return "connect";
-     return conn.status || "pending";
+  const handleRespond = async (connectionId, action, otherUserId) => {
+    try {
+      await respondToConnection(connectionId, action);
+      toast.success(`Request ${action === "accepted" ? "accepted" : "rejected"}!`);
+      
+      // 🔔 Emit real-time response
+      socket.emit("respondConnection", {
+        senderId: currentUserId,
+        receiverId: otherUserId,
+        status: action
+      });
+
+      fetchData();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to respond to request");
+    }
   };
+
+  const getStatus = (userId) => {
+     const conn = myConnections.find(c => 
+       (c.receiver?._id === userId || c.sender?._id === userId || c.receiver === userId || c.sender === userId)
+     );
+     if (!conn) return { status: "connect" };
+     
+     // Check if I am the receiver and it's pending
+     const isIncoming = (conn.receiver?._id === currentUserId || conn.receiver === currentUserId);
+     
+     return { 
+       status: conn.status, 
+       isIncoming, 
+       connectionId: conn._id 
+     };
+  };
+
+  // Filter incoming pending requests
+  const incomingRequests = myConnections.filter(c => 
+    (c.receiver?._id === currentUserId || c.receiver === currentUserId) && c.status === "pending"
+  );
 
   return (
     <Layout>
@@ -94,46 +128,98 @@ export default function Networking() {
 
         {loading ? (
            <div className="text-center py-10 text-blue-500 font-medium tracking-wide">Loading connections...</div>
-        ) : connections.length === 0 ? (
-           <div className="text-center py-10 text-slate-500 font-medium">No new connections found.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {connections.map((person) => {
-              const status = getStatus(person._id || person.id);
-              return (
-              <div key={person._id || person.id} className="relative p-5 rounded-2xl border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent hover:bg-white/[0.05] transition-colors group flex items-center gap-4">
-                 
-                 <div className="w-14 h-14 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full flex items-center justify-center font-bold text-xl text-white shadow-lg flex-shrink-0 overflow-hidden">
-                    {person.profilePhoto ? (
-                      <img src={person.profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      (person.name?.[0] || "?").toUpperCase()
-                    )}
-                 </div>
-
-                 <div className="flex-1 min-w-0">
-                    <h3 className="text-white font-semibold truncate group-hover:text-blue-400 transition-colors cursor-pointer">{person.name || "Unknown"}</h3>
-                    <div className="text-xs text-slate-400 truncate mt-0.5 capitalize">{person.role || "Member"}</div>
-                    <div className="text-[10px] text-blue-500/80 font-medium mt-1">{person.college || ""}</div>
-                 </div>
-
-                 <div>
-                    {status === "connected" ? (
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded bg-white/5 text-slate-300 text-xs font-semibold cursor-default">
-                        <FaCheck /> Connected
-                      </button>
-                    ) : status === "pending" || status === "requested" ? (
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-semibold hover:bg-blue-500/20 transition-colors cursor-default">
-                        Pending
-                      </button>
-                    ) : (
-                      <button onClick={() => toggleConnection(person._id || person.id)} className="flex items-center gap-2 px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors">
-                        <FaUserPlus /> Connect
-                      </button>
-                    )}
-                 </div>
+          <div className="space-y-8">
+            
+            {/* Incoming Requests Section */}
+            {incomingRequests.length > 0 && (
+              <div>
+                <h2 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-4">Pending Requests ({incomingRequests.length})</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {incomingRequests.map((conn) => {
+                    const person = conn.sender;
+                    return (
+                      <div key={conn._id} className="p-4 rounded-2xl border border-blue-500/20 bg-blue-500/5 flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg overflow-hidden">
+                          {person.profilePhoto ? <img src={person.profilePhoto} className="w-full h-full object-cover" /> : person.name?.[0]}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold text-sm">{person.name}</h3>
+                          <p className="text-xs text-slate-400 capitalize">{person.role}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleRespond(conn._id, "accepted", person._id)}
+                            className="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors"
+                          >
+                            <FaCheck size={12} />
+                          </button>
+                          <button 
+                            onClick={() => handleRespond(conn._id, "rejected", person._id)}
+                            className="bg-white/10 hover:bg-red-500/20 text-white p-2 rounded-lg transition-colors"
+                          >
+                            <FaTimes size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            )})}
+            )}
+
+            {/* Discovery Section */}
+            <div>
+              <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">People you may know</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {users.length === 0 ? (
+                  <div className="text-slate-500 text-sm italic col-span-full">No other users found.</div>
+                ) : (
+                  users.map((person) => {
+                    const { status, isIncoming } = getStatus(person._id || person.id);
+                    
+                    return (
+                    <div key={person._id || person.id} className="relative p-5 rounded-2xl border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent hover:bg-white/[0.05] transition-colors group flex items-center gap-4">
+                      
+                      <div className="w-14 h-14 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full flex items-center justify-center font-bold text-xl text-white shadow-lg flex-shrink-0 overflow-hidden">
+                          {person.profilePhoto ? (
+                            <img src={person.profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            (person.name?.[0] || "?").toUpperCase()
+                          )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                          <h3 className="text-white font-semibold truncate group-hover:text-blue-400 transition-colors cursor-pointer">{person.name || "Unknown"}</h3>
+                          <div className="text-xs text-slate-400 truncate mt-0.5 capitalize">{person.role || "Member"}</div>
+                          <div className="text-[10px] text-blue-500/80 font-medium mt-1">{person.collegeName || ""}</div>
+                      </div>
+
+                      <div>
+                          {status === "accepted" ? (
+                            <button 
+                              onClick={() => navigate(`/messaging?chat=${person._id || person.id}`)}
+                              className="flex items-center gap-2 px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+                            >
+                              <FaCommentDots /> Message
+                            </button>
+                          ) : status === "pending" ? (
+                            <button className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-semibold cursor-default ${
+                              isIncoming ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                            }`}>
+                              {isIncoming ? "Request Received" : "Pending"}
+                            </button>
+                          ) : (
+                            <button onClick={() => handleSendConnection(person._id || person.id)} className="flex items-center gap-2 px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition-colors border border-white/10">
+                              <FaUserPlus /> Connect
+                            </button>
+                          )}
+                      </div>
+                    </div>
+                  )})
+                )}
+              </div>
+            </div>
           </div>
         )}
 
