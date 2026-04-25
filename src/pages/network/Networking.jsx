@@ -15,8 +15,17 @@ export default function Networking() {
   const navigate = useNavigate();
 
   // Safely grab current user to filter out self
-  const currentUser = JSON.parse(localStorage.getItem("user")) || {};
-  const currentUserId = currentUser._id || currentUser.id;
+  const currentUser = (() => {
+    try {
+      const u = localStorage.getItem("user");
+      if (!u || u === "undefined" || u === "null") return {};
+      const parsed = JSON.parse(u);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  })();
+  const currentUserId = currentUser?._id || currentUser?.id || "";
 
   const fetchData = async () => {
     try {
@@ -86,13 +95,16 @@ export default function Networking() {
   };
 
   const getStatus = (userId) => {
-     const conn = myConnections.find(c => 
-       (c.receiver?._id === userId || c.sender?._id === userId || c.receiver === userId || c.sender === userId)
-     );
+     const conn = myConnections.find(c => {
+       const sId = c.sender?._id || c.sender;
+       const rId = c.receiver?._id || c.receiver;
+       return String(sId) === String(userId) || String(rId) === String(userId);
+     });
      if (!conn) return { status: "connect" };
      
      // Check if I am the receiver and it's pending
-     const isIncoming = (conn.receiver?._id === currentUserId || conn.receiver === currentUserId);
+     const rId = conn.receiver?._id || conn.receiver;
+     const isIncoming = String(rId) === String(currentUserId);
      
      return { 
        status: conn.status, 
@@ -102,9 +114,10 @@ export default function Networking() {
   };
 
   // Filter incoming pending requests
-  const incomingRequests = myConnections.filter(c => 
-    (c.receiver?._id === currentUserId || c.receiver === currentUserId) && c.status === "pending"
-  );
+  const incomingRequests = myConnections.filter(c => {
+    const rId = c.receiver?._id || c.receiver;
+    return String(rId) === String(currentUserId) && c.status === "pending";
+  });
 
   return (
     <Layout>
@@ -138,24 +151,25 @@ export default function Networking() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {incomingRequests.map((conn) => {
                     const person = conn.sender;
+                    if (!person) return null; // Skip if sender data is missing
                     return (
                       <div key={conn._id} className="p-4 rounded-2xl border border-blue-500/20 bg-blue-500/5 flex items-center gap-4">
                         <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg overflow-hidden">
-                          {person.profilePhoto ? <img src={person.profilePhoto} className="w-full h-full object-cover" /> : person.name?.[0]}
+                          {person.profilePhoto ? <img src={person.profilePhoto} className="w-full h-full object-cover" /> : (person.name?.[0] || "?")}
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-white font-semibold text-sm">{person.name}</h3>
-                          <p className="text-xs text-slate-400 capitalize">{person.role}</p>
+                          <h3 className="text-white font-semibold text-sm">{person.name || "Unknown"}</h3>
+                          <p className="text-xs text-slate-400 capitalize">{person.role || "Member"}</p>
                         </div>
                         <div className="flex gap-2">
                           <button 
-                            onClick={() => handleRespond(conn._id, "accepted", person._id)}
+                            onClick={() => handleRespond(conn._id, "accepted", person._id || person.id)}
                             className="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors"
                           >
                             <FaCheck size={12} />
                           </button>
                           <button 
-                            onClick={() => handleRespond(conn._id, "rejected", person._id)}
+                            onClick={() => handleRespond(conn._id, "rejected", person._id || person.id)}
                             className="bg-white/10 hover:bg-red-500/20 text-white p-2 rounded-lg transition-colors"
                           >
                             <FaTimes size={12} />

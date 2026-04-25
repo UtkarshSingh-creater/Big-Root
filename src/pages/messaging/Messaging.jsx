@@ -41,7 +41,9 @@ export default function Messaging() {
         const people = conns
           .filter(c => c.status === "accepted")
           .map(c => {
-            const isSender = (c.sender?._id || c.sender) === currentUserId;
+            const sId = c.sender?._id || c.sender;
+            const rId = c.receiver?._id || c.receiver;
+            const isSender = String(sId) === String(currentUserId);
             return isSender ? c.receiver : c.sender;
           })
           .filter(Boolean);
