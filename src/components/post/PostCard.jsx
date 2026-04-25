@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 
 export default function PostCard({ post }) {
   const navigate = useNavigate();
-  const [likes, setLikes] = useState(post.likes?.length || 0);
+  const [likes, setLikes] = useState(post.likesCount ?? post.likes?.length ?? 0);
   const [liked, setLiked] = useState(post.isLiked || false); 
   const [showComments, setShowComments] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -22,16 +22,18 @@ export default function PostCard({ post }) {
 
   const handleLike = async () => {
     // Optimistic UI updates
-    setLiked(!liked);
-    setLikes(liked ? likes - 1 : likes + 1);
+    const wasLiked = liked;
+    const prevLikes = likes;
+    setLiked(!wasLiked);
+    setLikes(wasLiked ? Math.max(0, prevLikes - 1) : prevLikes + 1);
 
     try {
       await API.post(`/post/${post._id}/like`);
     } catch (e) {
       console.error(e);
       // rollback on error
-      setLiked(!liked);
-      setLikes(liked ? likes + 1 : likes - 1);
+      setLiked(wasLiked);
+      setLikes(prevLikes);
       toast.error("Failed to like post");
     }
   };
