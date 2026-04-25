@@ -25,8 +25,8 @@ export default function Layout({ children }) {
         {/* RIGHT PANEL */}
         <div className="hidden lg:block w-[320px] shrink-0">
           <div className="card p-6 sticky top-28">
-            <h3 className="mb-6 text-white font-bold text-base flex items-center justify-between">
-              Grow Your Roots <span className="text-emerald-500 text-sm">ⓘ</span>
+            <h3 className="mb-6 text-slate-800 font-extrabold text-base flex items-center justify-between">
+              Grow Your Roots <span className="text-blue-600 text-sm">ⓘ</span>
             </h3>
 
             <button onClick={() => navigate("/events")} className="w-full mb-4 btn-secondary flex items-center justify-center gap-2 group">
@@ -43,15 +43,15 @@ export default function Layout({ children }) {
 
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent("new-alert", { detail: "Global Broadcast: " + new Date().toLocaleTimeString() }))} 
-              className="w-full btn-primary flex items-center justify-center gap-2 py-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 shadow-lg shadow-emerald-500/10"
+              className="w-full btn-primary flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 shadow-lg shadow-blue-500/10"
             >
                Broadcast Signal (Push Alert)
             </button>
 
-            <div className="mt-8 pt-6 border-t border-white/10 text-xs text-slate-500 text-center flex flex-wrap justify-center gap-x-4 gap-y-2">
-              <a href="#" className="hover:text-emerald-400 transition-colors">About</a>
-              <a href="#" className="hover:text-emerald-400 transition-colors">Accessibility</a>
-              <a href="#" className="hover:text-emerald-400 transition-colors">Help Center</a>
+            <div className="mt-8 pt-6 border-t border-slate-200 text-xs text-slate-500 text-center flex flex-wrap justify-center gap-x-4 gap-y-2">
+              <a href="#" className="hover:text-blue-600 transition-colors">About</a>
+              <a href="#" className="hover:text-blue-600 transition-colors">Accessibility</a>
+              <a href="#" className="hover:text-blue-600 transition-colors">Help Center</a>
               <p className="w-full mt-2 font-medium tracking-wide">BigRoot © 2026</p>
             </div>
           </div>

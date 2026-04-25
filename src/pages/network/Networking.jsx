@@ -3,6 +3,7 @@ import Layout from "../../components/layout/Layout";
 import { FaUserPlus, FaCheck, FaSearch } from "react-icons/fa";
 import API from "../../api/index";
 import { sendConnection, getConnections } from "../../api/connection";
+import socket from "../../services/socket";
 import toast from "react-hot-toast";
 
 export default function Networking() {
@@ -45,8 +46,15 @@ export default function Networking() {
     try {
       await sendConnection(userId);
       toast.success("Connection request sent!");
-      
-      // Optimistic update of local connection array mappings via push mechanism
+
+      // 🔔 Emit real-time socket event so receiver gets an instant notification
+      const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+      socket.emit("sendConnectionRequest", {
+        senderId: currentUser._id || currentUser.id,
+        receiverId: userId,
+      });
+
+      // Optimistic update
       setMyConnections([...myConnections, { recipient: { _id: userId }, status: "pending" }]);
     } catch(e) {
       console.error(e);
@@ -79,13 +87,13 @@ export default function Networking() {
             <input 
               type="text" 
               placeholder="Search people..." 
-              className="bg-[#0b1114]/50 border border-white/10 text-sm rounded-lg pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 w-full md:w-64"
+              className="bg-[#0b1114]/50 border border-white/10 text-sm rounded-lg pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 w-full md:w-64"
             />
           </div>
         </div>
 
         {loading ? (
-           <div className="text-center py-10 text-emerald-500 font-medium tracking-wide">Loading connections...</div>
+           <div className="text-center py-10 text-blue-500 font-medium tracking-wide">Loading connections...</div>
         ) : connections.length === 0 ? (
            <div className="text-center py-10 text-slate-500 font-medium">No new connections found.</div>
         ) : (
@@ -95,7 +103,7 @@ export default function Networking() {
               return (
               <div key={person._id || person.id} className="relative p-5 rounded-2xl border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent hover:bg-white/[0.05] transition-colors group flex items-center gap-4">
                  
-                 <div className="w-14 h-14 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-full flex items-center justify-center font-bold text-xl text-white shadow-lg flex-shrink-0 overflow-hidden">
+                 <div className="w-14 h-14 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full flex items-center justify-center font-bold text-xl text-white shadow-lg flex-shrink-0 overflow-hidden">
                     {person.profilePhoto ? (
                       <img src={person.profilePhoto} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -104,9 +112,9 @@ export default function Networking() {
                  </div>
 
                  <div className="flex-1 min-w-0">
-                    <h3 className="text-white font-semibold truncate group-hover:text-emerald-400 transition-colors cursor-pointer">{person.name || "Unknown"}</h3>
+                    <h3 className="text-white font-semibold truncate group-hover:text-blue-400 transition-colors cursor-pointer">{person.name || "Unknown"}</h3>
                     <div className="text-xs text-slate-400 truncate mt-0.5 capitalize">{person.role || "Member"}</div>
-                    <div className="text-[10px] text-emerald-500/80 font-medium mt-1">{person.college || ""}</div>
+                    <div className="text-[10px] text-blue-500/80 font-medium mt-1">{person.college || ""}</div>
                  </div>
 
                  <div>
@@ -115,11 +123,11 @@ export default function Networking() {
                         <FaCheck /> Connected
                       </button>
                     ) : status === "pending" || status === "requested" ? (
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold hover:bg-emerald-500/20 transition-colors cursor-default">
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-semibold hover:bg-blue-500/20 transition-colors cursor-default">
                         Pending
                       </button>
                     ) : (
-                      <button onClick={() => toggleConnection(person._id || person.id)} className="flex items-center gap-2 px-3 py-1.5 rounded bg-emerald-500 hover:bg-emerald-400 text-[#0b1114] text-xs font-bold transition-colors">
+                      <button onClick={() => toggleConnection(person._id || person.id)} className="flex items-center gap-2 px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors">
                         <FaUserPlus /> Connect
                       </button>
                     )}

@@ -34,21 +34,21 @@ export default function CommentSection({ postId }) {
   };
 
   return (
-    <div className="mt-4 pt-4 border-t border-white/10">
+    <div className="mt-4 pt-4 border-t border-slate-100">
       
       {/* Comments List */}
       <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
         {comments.length > 0 ? (
           comments.map((c) => (
             <div key={c._id} className="flex gap-3 text-sm">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">
                 {c.user?.name?.[0]?.toUpperCase() || "?"}
               </div>
-              <div className="bg-white/5 rounded-2xl rounded-tl-none px-4 py-2 border border-white/5 flex-1 shadow-inner">
-                <span className="font-semibold text-white/90 mr-2 hover:text-emerald-400 cursor-pointer transition-colors hover:underline">
+              <div className="bg-slate-50 rounded-2xl rounded-tl-none px-4 py-2 border border-slate-100 flex-1 shadow-sm">
+                <span className="font-bold text-slate-800 mr-2 hover:text-blue-600 cursor-pointer transition-colors hover:underline">
                   {c.user?.name || "Unknown User"}
                 </span>
-                <span className="text-slate-300 block mt-1 tracking-wide">{c.text}</span>
+                <span className="text-slate-600 block mt-1 tracking-wide font-medium">{c.text}</span>
               </div>
             </div>
           ))
@@ -61,7 +61,7 @@ export default function CommentSection({ postId }) {
 
       {/* Input */}
       <div className="flex gap-2 items-center">
-         <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold flex-shrink-0 text-sm shadow-[0_0_10px_rgba(16,185,129,0.4)]">
+         <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold flex-shrink-0 text-sm shadow-md shadow-blue-500/20">
             Me
          </div>
         <input

@@ -30,7 +30,7 @@ export default function Opportunities() {
                <input 
                  type="text" 
                  placeholder="Search role, company or skills..." 
-                 className="bg-black/30 border border-white/10 text-sm rounded-lg pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 w-full"
+                 className="bg-black/30 border border-white/10 text-sm rounded-lg pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 w-full"
                />
              </div>
              <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-sm transition-colors">
@@ -42,33 +42,33 @@ export default function Opportunities() {
         {/* List of Jobs */}
         <div className="space-y-4">
           {jobs.map(job => (
-             <div key={job.id} className="p-5 rounded-2xl border border-white/5 bg-gradient-to-r from-transparent to-black/10 hover:border-emerald-500/30 transition-colors group flex flex-col md:flex-row gap-4 md:items-center">
+             <div key={job.id} className="p-5 rounded-2xl border border-white/5 bg-gradient-to-r from-transparent to-black/10 hover:border-blue-500/30 transition-colors group flex flex-col md:flex-row gap-4 md:items-center">
                 
                 {/* Visual Graphic Base */}
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500/20 to-teal-900/40 rounded-xl border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                  <FaBuilding className="text-emerald-500 text-2xl" />
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-blue-900/40 rounded-xl border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                  <FaBuilding className="text-blue-500 text-2xl" />
                 </div>
                 
                 {/* Context Column */}
                 <div className="flex-1 min-w-0">
-                   <h3 className="text-white font-bold text-lg group-hover:text-emerald-400 transition-colors cursor-pointer">{job.title}</h3>
-                   <div className="text-emerald-500 font-medium text-sm mb-2">{job.company}</div>
+                   <h3 className="text-white font-bold text-lg group-hover:text-blue-400 transition-colors cursor-pointer">{job.title}</h3>
+                   <div className="text-blue-500 font-medium text-sm mb-2">{job.company}</div>
                    
                    <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-400">
                       <span className="flex items-center gap-1"><FaMapMarkerAlt /> {job.location}</span>
                       <span className="flex items-center gap-1"><FaBriefcase /> {job.type}</span>
-                      <span className="flex items-center gap-1 text-slate-300"><FaMoneyBillWave className="text-emerald-500/70" /> {job.salary}</span>
+                      <span className="flex items-center gap-1 text-slate-300"><FaMoneyBillWave className="text-blue-500/70" /> {job.salary}</span>
                    </div>
                 </div>
 
                 {/* Applying Interactors */}
                 <div className="flex md:flex-col items-center md:items-end justify-between gap-3 mt-2 md:mt-0">
-                   <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full text-[10px] font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
+                   <div className="flex items-center gap-2 bg-blue-500/10 px-3 py-1 rounded-full text-[10px] font-bold text-blue-400 border border-blue-500/20 uppercase tracking-widest">
                       {job.match}% Match
                    </div>
                    <button 
                      onClick={() => handleApply(job.title)}
-                     className="btn-primary py-2 px-6 shadow-lg shadow-emerald-500/10 active:scale-95 transition-transform text-sm"
+                     className="btn-primary py-2 px-6 shadow-lg shadow-blue-500/10 active:scale-95 transition-transform text-sm"
                    >
                      Easy Apply
                    </button>

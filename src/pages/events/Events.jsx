@@ -31,25 +31,25 @@ export default function Events() {
              <div key={evt.id} className="rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent hover:bg-white/[0.05] transition-colors group overflow-hidden flex flex-col">
                 
                 {/* Event Image Placeholder */}
-                <div className="h-32 bg-gradient-to-r from-teal-900 to-black relative">
+                <div className="h-32 bg-gradient-to-r from-blue-900 to-black relative">
                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md rounded px-3 py-1.5 flex flex-col items-center justify-center border border-white/10 shadow-lg">
-                      <span className="text-emerald-400 font-bold leading-none mb-0.5">{evt.date.split(" ")[1]}</span>
+                      <span className="text-blue-400 font-bold leading-none mb-0.5">{evt.date.split(" ")[1]}</span>
                       <span className="text-[10px] text-white font-bold uppercase tracking-widest">{evt.date.split(" ")[0]}</span>
                    </div>
-                   <div className="absolute top-3 right-3 bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-500/20 shadow-lg capitalize">
+                   <div className="absolute top-3 right-3 bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-500/20 shadow-lg capitalize">
                       {evt.type}
                    </div>
                 </div>
                 
                 {/* Context Column */}
                 <div className="flex-1 p-5 flex flex-col">
-                   <h3 className="text-white font-bold group-hover:text-emerald-400 transition-colors cursor-pointer mb-3 leading-snug">{evt.title}</h3>
+                   <h3 className="text-white font-bold group-hover:text-blue-400 transition-colors cursor-pointer mb-3 leading-snug">{evt.title}</h3>
                    
                    <div className="space-y-2 text-xs font-semibold text-slate-400 flex-1 mb-6">
-                      <div className="flex items-center gap-2"><FaClock className="text-emerald-500/70" /> {evt.time}</div>
-                      <div className="flex items-center gap-2"><FaMapMarkerAlt className="text-emerald-500/70" /> {evt.location}</div>
-                      <div className="flex items-center gap-2"><FaUsers className="text-emerald-500/70" /> {evt.attendees} Registered</div>
+                      <div className="flex items-center gap-2"><FaClock className="text-blue-500/70" /> {evt.time}</div>
+                      <div className="flex items-center gap-2"><FaMapMarkerAlt className="text-blue-500/70" /> {evt.location}</div>
+                      <div className="flex items-center gap-2"><FaUsers className="text-blue-500/70" /> {evt.attendees} Registered</div>
                    </div>
 
                    <button 

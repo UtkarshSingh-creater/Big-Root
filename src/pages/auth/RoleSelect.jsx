@@ -20,15 +20,15 @@ export default function RoleSelect() {
 
       <div className="card w-full max-w-lg p-8 relative overflow-hidden">
         {/* Subtle decorative glow */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-[60px] pointer-events-none"></div>
 
-        <button className="text-slate-400 hover:text-emerald-400 mb-6 text-sm font-semibold flex items-center gap-1 transition-all" onClick={() => navigate("/")}>
+        <button className="text-slate-400 hover:text-blue-600 mb-6 text-sm font-semibold flex items-center gap-1 transition-all" onClick={() => navigate("/")}>
           ← Back
         </button>
 
         <div className="text-center mb-8 relative z-10">
-          <h1 className="text-3xl font-bold text-white mb-2">Identify Yourself</h1>
-          <p className="text-muted">Select your role to access your personalized network</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 mb-2">Identify Yourself</h1>
+          <p className="text-slate-500 font-medium">Select your role to access your personalized network</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-2 gap-4 relative z-10">
@@ -39,10 +39,10 @@ export default function RoleSelect() {
                 localStorage.setItem("role", role.id);
                 navigate("/login");
               }}
-              className="border border-white/10 bg-white/5 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300 transform hover:-translate-y-1 text-slate-300 hover:text-white group"
+              className="border border-slate-200 bg-slate-50 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-blue-50 hover:shadow-[0_10px_20px_-10px_rgba(37,99,235,0.3)] transition-all duration-300 transform hover:-translate-y-1 text-slate-600 hover:text-slate-900 group"
             >
-              <div className="text-emerald-500 group-hover:text-emerald-400 transition-colors drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">{role.icon}</div>
-              <span className="font-semibold tracking-wide">{role.label}</span>
+              <div className="text-blue-500 group-hover:text-blue-600 transition-colors drop-shadow-sm">{role.icon}</div>
+              <span className="font-bold tracking-wide">{role.label}</span>
             </div>
           ))}
         </div>

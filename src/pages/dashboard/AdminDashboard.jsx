@@ -78,16 +78,16 @@ export default function AdminDashboard() {
 
   return (
     <Layout>
-      <div className="flex bg-[#0b1114]/50 border border-white/5 p-1.5 rounded-xl mb-6 gap-2 backdrop-blur-md">
+      <div className="flex bg-white border border-slate-200 p-1.5 rounded-xl mb-6 gap-2 shadow-sm">
          <button 
            onClick={() => setActiveTab("network")}
-           className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${activeTab === "network" ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
+           className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === "network" ? "bg-blue-600 text-white shadow-md shadow-blue-500/30" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"}`}
          >
             Network Feed
          </button>
          <button 
            onClick={() => setActiveTab("manage")}
-           className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${activeTab === "manage" ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
+           className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === "manage" ? "bg-blue-600 text-white shadow-md shadow-blue-500/30" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"}`}
          >
             User Management
          </button>
@@ -99,98 +99,98 @@ export default function AdminDashboard() {
            <Feed />
          </div>
       ) : (
-         <div className="card p-8 animate-fade-in">
-            <h2 className="text-2xl font-bold text-white mb-2">Register New Personnel</h2>
-            <p className="text-slate-400 text-sm mb-8 tracking-wide">
-               Proactively provision accounts mapping directly securely into <span className="text-emerald-500 font-semibold">{currentCollege}</span>'s isolated network infrastructure.
+         <div className="card p-8 animate-fade-in shadow-xl shadow-slate-200/50">
+            <h2 className="text-2xl font-extrabold text-slate-800 mb-2">Register New Personnel</h2>
+            <p className="text-slate-500 text-sm mb-8 tracking-wide font-medium">
+               Proactively provision accounts mapping directly securely into <span className="text-blue-600 font-bold">{currentCollege}</span>'s isolated network infrastructure.
             </p>
 
             <form onSubmit={handleCreateUser} className="space-y-6">
                 
                 {/* Role Switcher */}
                 <div>
-                   <label className="text-xs font-semibold text-emerald-500 tracking-wider uppercase mb-3 block">1. Select Identity Protocol</label>
+                   <label className="text-xs font-bold text-blue-600 tracking-wider uppercase mb-3 block">1. Select Identity Protocol</label>
                    <div className="flex gap-4">
-                      <label className="flex items-center gap-2 cursor-pointer text-slate-300">
-                         <input type="radio" name="role" value="student" checked={formData.role === "student"} onChange={handleChange} className="accent-emerald-500" />
+                      <label className="flex items-center gap-2 cursor-pointer text-slate-600 font-semibold">
+                         <input type="radio" name="role" value="student" checked={formData.role === "student"} onChange={handleChange} className="accent-blue-600 w-4 h-4" />
                          Student / Alumnus Account
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-slate-300">
-                         <input type="radio" name="role" value="faculty" checked={formData.role === "faculty"} onChange={handleChange} className="accent-emerald-500" />
+                      <label className="flex items-center gap-2 cursor-pointer text-slate-600 font-semibold">
+                         <input type="radio" name="role" value="faculty" checked={formData.role === "faculty"} onChange={handleChange} className="accent-blue-600 w-4 h-4" />
                          Faculty Account
                       </label>
                    </div>
                 </div>
 
-                <div className="h-px bg-white/10 w-full"></div>
+                <div className="h-px bg-slate-200 w-full"></div>
 
                 {/* Universal Fields */}
                 <div>
-                   <label className="text-xs font-semibold text-emerald-500 tracking-wider uppercase mb-4 block">2. Standard Inputs</label>
+                   <label className="text-xs font-bold text-blue-600 tracking-wider uppercase mb-4 block">2. Standard Inputs</label>
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs text-slate-400 mb-1.5 block">Full Legal Name</label>
-                        <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full bg-[#0b1114]/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="John Doe" />
+                        <label className="text-xs font-bold text-slate-500 mb-1.5 block">Full Legal Name</label>
+                        <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="John Doe" />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400 mb-1.5 block">Secure Password</label>
-                        <input required type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-[#0b1114]/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="••••••••" />
+                        <label className="text-xs font-bold text-slate-500 mb-1.5 block">Secure Password</label>
+                        <input required type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="••••••••" />
                       </div>
                    </div>
                 </div>
 
                 {/* Conditional Fields */}
-                <div className="bg-white/5 rounded-xl p-5 border border-white/5 shadow-inner">
-                   <label className="text-xs font-semibold text-amber-500 tracking-wider uppercase mb-4 block">
+                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 shadow-sm">
+                   <label className="text-xs font-bold text-amber-600 tracking-wider uppercase mb-4 block">
                       3. {formData.role === "student" ? "Student / Alumnus" : "Faculty"} Parameters
                    </label>
                    
                    {formData.role === "student" ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                           <label className="text-xs text-slate-400 mb-1.5 block">Internal College ID</label>
-                           <input required type="text" name="collegeId" value={formData.collegeId} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="e.g. CS2022_001" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">Internal College ID</label>
+                           <input required type="text" name="collegeId" value={formData.collegeId} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="e.g. CS2022_001" />
                         </div>
                         <div>
-                           <label className="text-xs text-slate-400 mb-1.5 block">University Roll No</label>
-                           <input required type="text" name="universityRollNo" value={formData.universityRollNo} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="e.g. 210xxxxxx" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">University Roll No</label>
+                           <input required type="text" name="universityRollNo" value={formData.universityRollNo} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="e.g. 210xxxxxx" />
                         </div>
                         <div>
-                           <label className="text-xs text-slate-400 mb-1.5 block">Academic Branch</label>
-                           <input required type="text" name="branch" value={formData.branch} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="e.g. CSE, IT" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">Academic Branch</label>
+                           <input required type="text" name="branch" value={formData.branch} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="e.g. CSE, IT" />
                         </div>
                         <div>
-                           <label className="text-xs text-slate-400 mb-1.5 block">Batch Year</label>
-                           <input required type="number" name="year" value={formData.year} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="e.g. 1, 2, 3, 4" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">Batch Year</label>
+                           <input required type="number" name="year" value={formData.year} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="e.g. 1, 2, 3, 4" />
                         </div>
                         <div className="md:col-span-2">
-                           <label className="text-xs text-slate-400 mb-1.5 block">Section</label>
-                           <input required type="text" name="section" value={formData.section} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="e.g. A, B" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">Section</label>
+                           <input required type="text" name="section" value={formData.section} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="e.g. A, B" />
                         </div>
                       </div>
                    ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2">
-                           <label className="text-xs text-slate-400 mb-1.5 block">Verified Email Address</label>
-                           <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="faculty@college.edu" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">Verified Email Address</label>
+                           <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="faculty@college.edu" />
                         </div>
                         <div>
-                           <label className="text-xs text-slate-400 mb-1.5 block">Department</label>
-                           <input required type="text" name="department" value={formData.department} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="e.g. Computer Science" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">Department</label>
+                           <input required type="text" name="department" value={formData.department} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="e.g. Computer Science" />
                         </div>
                         <div>
-                           <label className="text-xs text-slate-400 mb-1.5 block">Designation</label>
-                           <input required type="text" name="designation" value={formData.designation} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="e.g. Associate Professor" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">Designation</label>
+                           <input required type="text" name="designation" value={formData.designation} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="e.g. Associate Professor" />
                         </div>
                         <div className="md:col-span-2">
-                           <label className="text-xs text-slate-400 mb-1.5 block">Qualification</label>
-                           <input required type="text" name="qualification" value={formData.qualification} onChange={handleChange} className="w-full bg-[#0b1114]/80 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-emerald-500/50 focus:outline-none" placeholder="e.g. Ph.D. in Machine Learning" />
+                           <label className="text-xs font-bold text-slate-500 mb-1.5 block">Qualification</label>
+                           <input required type="text" name="qualification" value={formData.qualification} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400" placeholder="e.g. Ph.D. in Machine Learning" />
                         </div>
                       </div>
                    )}
                 </div>
 
-                <button disabled={loading} type="submit" className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 transition-colors text-[#0b1114] font-bold rounded-lg shadow-lg shadow-emerald-500/20 mt-4 disabled:opacity-50 flex justify-center items-center gap-3">
+                <button disabled={loading} type="submit" className="w-full py-4 btn-primary rounded-xl mt-4 flex justify-center items-center gap-3">
                    {loading ? "Provisioning Database..." : "Commit User to Network"}
                 </button>
             </form>

@@ -6,6 +6,7 @@ import { FaUserPlus, FaCheck, FaSpinner, FaArrowLeft } from "react-icons/fa";
 import API from "../../api/index";
 import { sendConnection, getConnections } from "../../api/connection";
 import { getUserProfileById } from "../../api/user";
+import socket from "../../services/socket";
 import toast from "react-hot-toast";
 
 export default function PublicProfile() {
@@ -82,6 +83,13 @@ export default function PublicProfile() {
       await sendConnection(id);
       toast.success("Connection request sent!");
       setConnectionStatus("pending");
+
+      // 🔔 Emit real-time socket event so receiver gets instant notification
+      const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+      socket.emit("sendConnectionRequest", {
+        senderId: currentUser._id || currentUser.id,
+        receiverId: id,
+      });
     } catch(e) {
       toast.error(e.response?.data?.msg || "Failed to send connection");
     }
@@ -90,7 +98,7 @@ export default function PublicProfile() {
   if (loading) return (
     <Layout>
       <div className="card p-8 flex items-center justify-center min-h-[50vh]">
-        <div className="text-emerald-500 flex items-center gap-2 font-bold tracking-wide">
+        <div className="text-blue-500 flex items-center gap-2 font-bold tracking-wide">
            <FaSpinner className="animate-spin text-xl" /> Generating user profile...
         </div>
       </div>
@@ -101,7 +109,7 @@ export default function PublicProfile() {
     <Layout>
       <div className="card p-8 text-center text-slate-400 font-semibold min-h-[50vh] flex flex-col justify-center items-center">
          <div>Profile Not Found</div>
-         <button onClick={() => navigate(-1)} className="mt-4 text-emerald-500 hover:text-emerald-400 flex items-center gap-2 transition-colors">
+         <button onClick={() => navigate(-1)} className="mt-4 text-blue-500 hover:text-blue-400 flex items-center gap-2 transition-colors">
             <FaArrowLeft /> Go Back
          </button>
       </div>
@@ -112,7 +120,7 @@ export default function PublicProfile() {
     <Layout>
       <div className="card overflow-hidden mb-6">
         {/* Cover Graphic */}
-        <div className="h-32 bg-gradient-to-r from-teal-500/20 via-emerald-500/20 to-emerald-900/40 relative">
+        <div className="h-32 bg-gradient-to-r from-blue-500/20 via-blue-600/20 to-blue-900/40 relative">
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
         </div>
 
@@ -120,7 +128,7 @@ export default function PublicProfile() {
           
           {/* Avatar Area */}
           <div className="absolute -top-16 left-8">
-            <div className="w-32 h-32 rounded-full border-4 border-[#151f24] shadow-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-4xl font-bold text-white overflow-hidden">
+            <div className="w-32 h-32 rounded-full border-4 border-[#151f24] shadow-2xl bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-4xl font-bold text-white overflow-hidden">
                {profile.profilePhoto ? (
                  <img src={profile.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
                ) : (
@@ -132,7 +140,7 @@ export default function PublicProfile() {
           <div className="mt-16 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-white">{profile.name}</h1>
-              <p className="text-emerald-500 font-medium tracking-wide capitalize">{profile.role}</p>
+              <p className="text-blue-500 font-medium tracking-wide capitalize">{profile.role}</p>
             </div>
 
             <div>
@@ -141,11 +149,11 @@ export default function PublicProfile() {
                    <FaCheck /> Connected
                  </button>
                ) : connectionStatus === "pending" || connectionStatus === "requested" ? (
-                 <button className="flex items-center gap-2 px-6 py-2.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold cursor-default">
+                 <button className="flex items-center gap-2 px-6 py-2.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold cursor-default">
                    Pending
                  </button>
                ) : (
-                 <button onClick={handleConnect} className="flex items-center gap-2 px-6 py-2.5 rounded bg-emerald-500 hover:bg-emerald-400 text-[#0b1114] font-bold shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-colors">
+                 <button onClick={handleConnect} className="flex items-center gap-2 px-6 py-2.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-colors">
                    <FaUserPlus /> Connect
                  </button>
                )}
@@ -153,7 +161,7 @@ export default function PublicProfile() {
           </div>
 
           <div className="bg-white/5 border border-white/10 rounded-xl p-5 mb-6">
-             <label className="block text-xs font-semibold text-emerald-400 mb-2 tracking-wide uppercase">About Me</label>
+             <label className="block text-xs font-semibold text-blue-500 mb-2 tracking-wide uppercase">About Me</label>
              <p className="text-slate-300 leading-relaxed min-h-[60px]">
                 {profile.about || "No biography available yet."}
              </p>

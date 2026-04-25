@@ -77,7 +77,7 @@ export default function Profile() {
   if (!user) return (
     <Layout>
       <div className="card p-8 flex items-center justify-center min-h-[50vh]">
-        <div className="text-emerald-500 flex items-center gap-2 font-bold tracking-wide">
+        <div className="text-blue-500 flex items-center gap-2 font-bold tracking-wide">
            <FaSpinner className="animate-spin text-xl" /> Fetching profile...
         </div>
       </div>
@@ -89,7 +89,7 @@ export default function Profile() {
       <div className="card overflow-hidden">
         
         {/* Cover Graphic */}
-        <div className="h-32 bg-gradient-to-r from-teal-500/20 via-emerald-500/20 to-emerald-900/40 relative">
+        <div className="h-32 bg-gradient-to-r from-blue-500/20 via-blue-600/20 to-blue-900/40 relative">
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
         </div>
 
@@ -97,7 +97,7 @@ export default function Profile() {
           
           {/* Avatar Area */}
           <div className="absolute -top-16 left-8">
-            <div className="group relative w-32 h-32 rounded-full border-4 border-[#151f24] shadow-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-4xl font-bold text-white overflow-hidden">
+            <div className="group relative w-32 h-32 rounded-full border-4 border-[#151f24] shadow-2xl bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-4xl font-bold text-white overflow-hidden">
                {preview || user.profilePhoto ? (
                  <img src={preview || user.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
                ) : (
@@ -119,13 +119,13 @@ export default function Profile() {
           <div className="mt-16 mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">{user.name}</h1>
-              <p className="text-emerald-500 font-medium tracking-wide capitalize">{user.role}</p>
+              <p className="text-blue-500 font-medium tracking-wide capitalize">{user.role}</p>
             </div>
             
             <button 
               onClick={handleUpdate}
               disabled={loading}
-              className="btn-primary flex items-center gap-2 py-2.5 px-6 shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+              className="btn-primary flex items-center gap-2 py-2.5 px-6 shadow-lg shadow-blue-500/20 disabled:opacity-50"
             >
               {loading ? <FaSpinner className="animate-spin" /> : <FaSave />}
               {loading ? "Saving..." : "Save Changes"}
@@ -136,44 +136,44 @@ export default function Profile() {
           <div className="space-y-6">
             
             <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-               <label className="block text-xs font-semibold text-emerald-400 mb-2 tracking-wide uppercase">Display Name</label>
+               <label className="block text-xs font-semibold text-blue-500 mb-2 tracking-wide uppercase">Display Name</label>
                <input
                  type="text"
                  value={name}
                  onChange={(e) => setName(e.target.value)}
-                 className="w-full bg-black/30 border border-white/10 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-medium"
+                 className="w-full bg-black/30 border border-white/10 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium"
                />
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-               <label className="block text-xs font-semibold text-emerald-400 mb-2 tracking-wide uppercase">Email Address</label>
+               <label className="block text-xs font-semibold text-blue-500 mb-2 tracking-wide uppercase">Email Address</label>
                <input
                  type="email"
                  value={email}
                  onChange={(e) => setEmail(e.target.value)}
-                 className="w-full bg-black/30 border border-white/10 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-medium"
+                 className="w-full bg-black/30 border border-white/10 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium"
                />
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-               <label className="block text-xs font-semibold text-emerald-400 mb-2 tracking-wide uppercase">Skills / Domains (Comma Separated)</label>
+               <label className="block text-xs font-semibold text-blue-500 mb-2 tracking-wide uppercase">Skills / Domains (Comma Separated)</label>
                <input
                  type="text"
                  value={skills}
                  onChange={(e) => setSkills(e.target.value)}
                  placeholder="e.g. Web Development, Machine Learning, UI/UX Design"
-                 className="w-full bg-black/30 border border-white/10 text-emerald-300 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-medium"
+                 className="w-full bg-black/30 border border-white/10 text-blue-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium"
                />
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-               <label className="block text-xs font-semibold text-emerald-400 mb-2 tracking-wide uppercase">About Me</label>
+               <label className="block text-xs font-semibold text-blue-500 mb-2 tracking-wide uppercase">About Me</label>
                <textarea
                  value={about}
                  onChange={(e) => setAbout(e.target.value)}
                  rows="4"
                  placeholder="Write something about your background and goals..."
-                 className="w-full bg-black/30 border border-white/10 text-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all leading-relaxed resize-none"
+                 className="w-full bg-black/30 border border-white/10 text-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all leading-relaxed resize-none"
                />
             </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/layout/Layout";
 import { FaPaperPlane, FaSearch, FaEllipsisV, FaSpinner } from "react-icons/fa";
-import socket from "../../services/socket";
+import socket, { connectSocket } from "../../services/socket";
 import API from "../../api/index";
 import toast from "react-hot-toast";
 
@@ -57,8 +57,8 @@ export default function Messaging() {
 
   // 3. Registering the Active Live Socket Receptors
   useEffect(() => {
-     // Handshake registration explicitly mapped in Topbar already, but ensuring connection
-     socket.connect();
+     // Ensure socket is connected and user is registered with backend
+     connectSocket();
 
      const handleMessageReceive = (data) => {
         // Only append if the message matches the current active chat window, or push a notification if not
@@ -126,7 +126,7 @@ export default function Messaging() {
                 onChange={(e) => setQuery(e.target.value)}
                 type="text" 
                 placeholder="Search..." 
-                className="bg-white/5 border border-white/10 text-xs rounded-full pl-8 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 w-full"
+                className="bg-white/5 border border-white/10 text-xs rounded-full pl-8 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 w-full"
               />
             </div>
           </div>
@@ -136,12 +136,12 @@ export default function Messaging() {
               <div 
                 key={chat._id || chat.id}
                 onClick={() => setActiveChat(chat._id || chat.id)}
-                className={`p-4 border-b border-white/5 cursor-pointer transition-colors flex items-center gap-3 relative ${activeChat === (chat._id || chat.id) ? 'bg-emerald-500/10' : 'hover:bg-white/5'}`}
+                className={`p-4 border-b border-white/5 cursor-pointer transition-colors flex items-center gap-3 relative ${activeChat === (chat._id || chat.id) ? 'bg-blue-500/10' : 'hover:bg-white/5'}`}
               >
-                {activeChat === (chat._id || chat.id) && <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-r"></div>}
+                {activeChat === (chat._id || chat.id) && <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r"></div>}
                 
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-tr from-teal-500 to-emerald-500 rounded-full flex items-center justify-center font-bold text-white shadow-md overflow-hidden flex-shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full flex items-center justify-center font-bold text-white shadow-md overflow-hidden flex-shrink-0">
                     {chat.profilePhoto ? <img src={chat.profilePhoto} className="w-full h-full object-cover" /> : chat.name?.[0]?.toUpperCase()}
                   </div>
                 </div>
@@ -150,7 +150,7 @@ export default function Messaging() {
                   <div className="flex justify-between items-baseline mb-0.5">
                     <h4 className="text-sm font-semibold text-white truncate">{chat.name}</h4>
                   </div>
-                  <p className="text-xs text-emerald-500/80 truncate capitalize">{chat.role || "Member"}</p>
+                  <p className="text-xs text-blue-500/80 truncate capitalize">{chat.role || "Member"}</p>
                 </div>
               </div>
             ))}
@@ -165,12 +165,12 @@ export default function Messaging() {
           {activeUser && (
              <div className="p-4 border-b border-white/10 flex items-center justify-between bg-black/10 backdrop-blur-md">
                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-tr from-teal-500 to-emerald-500 rounded-full flex items-center justify-center font-bold text-white shadow-md overflow-hidden flex-shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-full flex items-center justify-center font-bold text-white shadow-md overflow-hidden flex-shrink-0">
                      {activeUser.profilePhoto ? <img src={activeUser.profilePhoto} className="w-full h-full object-cover" /> : activeUser.name?.[0]?.toUpperCase()}
                   </div>
                   <div>
                     <h3 className="text-white font-bold">{activeUser.name}</h3>
-                    <p className="text-xs text-emerald-500 capitalize">{activeUser.role || "Member"}</p>
+                    <p className="text-xs text-blue-500 capitalize">{activeUser.role || "Member"}</p>
                   </div>
                </div>
                <button className="p-2 text-slate-400 hover:text-white transition-colors">
@@ -182,7 +182,7 @@ export default function Messaging() {
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar flex flex-col">
             {loadingHistory ? (
-                <div className="flex-1 flex justify-center items-center text-emerald-500 flex-col gap-2">
+                <div className="flex-1 flex justify-center items-center text-blue-500 flex-col gap-2">
                    <FaSpinner className="animate-spin text-2xl" />
                    <span className="text-xs font-bold tracking-widest uppercase">Connecting Tunnel...</span>
                 </div>
@@ -195,7 +195,7 @@ export default function Messaging() {
                    const isMe = msg.sender === currentUserId || msg.sender?._id === currentUserId;
                    return (
                       <div key={msg._id || msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                        <div className={`max-w-[75%] p-3 rounded-2xl ${isMe ? 'bg-emerald-500 text-[#0b1114] rounded-br-sm' : 'bg-[#1e2a30] text-slate-200 border border-white/5 rounded-bl-sm'}`}>
+                        <div className={`max-w-[75%] p-3 rounded-2xl ${isMe ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-[#1e2a30] text-slate-200 border border-white/5 rounded-bl-sm'}`}>
                           <p className="text-sm">{msg.text}</p>
                         </div>
                       </div>
@@ -213,12 +213,12 @@ export default function Messaging() {
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 disabled={!activeChat}
-                className="flex-1 bg-white/5 border border-white/10 rounded-full px-5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors disabled:opacity-50"
+                className="flex-1 bg-white/5 border border-white/10 rounded-full px-5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors disabled:opacity-50"
               />
               <button 
                 type="submit" 
                 disabled={!message.trim() || !activeChat}
-                className="w-10 h-10 rounded-full bg-emerald-500 text-[#0b1114] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-400 transition-colors"
+                className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-500 transition-colors"
               >
                 <FaPaperPlane className="ml-[-2px]" />
               </button>

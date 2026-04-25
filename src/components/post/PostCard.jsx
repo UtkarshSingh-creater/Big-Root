@@ -83,7 +83,7 @@ export default function PostCard({ post }) {
       {/* Header */}
       <div className="relative flex items-center gap-4 mb-4">
         <div 
-           className="w-12 h-12 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-full flex items-center justify-center font-bold text-lg text-white shadow-[0_0_15px_rgba(16,185,129,0.3)] flex-shrink-0 cursor-pointer hover:scale-105 transition-transform"
+           className="w-12 h-12 bg-gradient-to-tr from-blue-500 to-indigo-400 rounded-full flex items-center justify-center font-bold text-lg text-white shadow-md flex-shrink-0 cursor-pointer hover:scale-105 transition-transform"
            onClick={() => navigate(`/profile/${post.author?._id || post.author?.id}`)}
         >
            {post.author?.profilePhoto ? (
@@ -99,16 +99,16 @@ export default function PostCard({ post }) {
         <div className="flex-1">
           <div 
             onClick={() => navigate(`/profile/${post.author?._id || post.author?.id}`)}
-            className="font-bold text-white hover:text-emerald-400 transition-colors cursor-pointer inline-block"
+            className="font-extrabold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer inline-block"
           >
             {post.author?.name || "Unknown"}
           </div>
-          <div className="text-xs text-slate-400 font-medium capitalize mt-0.5">{post.author?.role || "Member"}</div>
+          <div className="text-xs text-slate-500 font-medium capitalize mt-0.5">{post.author?.role || "Member"}</div>
         </div>
         
         {/* Menu Toggle */}
         <div 
-           className="text-emerald-500 cursor-pointer p-2 hover:bg-white/5 rounded-full transition-colors relative"
+           className="text-slate-400 cursor-pointer p-2 hover:bg-slate-50 rounded-full transition-colors relative"
            onClick={() => setShowMenu(!showMenu)}
         >
           •••
@@ -116,16 +116,16 @@ export default function PostCard({ post }) {
 
         {/* Dropdown Menu */}
         {showMenu && isOwner && (
-           <div className="absolute right-0 top-10 bg-[#151f24] border border-white/10 rounded-lg shadow-xl overflow-hidden z-10 w-36">
+           <div className="absolute right-0 top-10 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden z-20 w-36">
               <div 
                  onClick={() => { setIsEditing(true); setShowMenu(false); }}
-                 className="flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 cursor-pointer transition-colors"
+                 className="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors font-medium"
               >
                  <FaEdit /> Edit Post
               </div>
               <div 
                  onClick={handleDelete}
-                 className="flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 cursor-pointer transition-colors border-t border-white/5"
+                 className="flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 cursor-pointer transition-colors border-t border-slate-100 font-medium"
               >
                  <FaTrash /> Delete Post
               </div>
@@ -138,7 +138,7 @@ export default function PostCard({ post }) {
         {isEditing ? (
           <div className="space-y-2">
             <textarea
-              className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-slate-200 resize-none outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-sans"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-800 resize-none outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-sans"
               rows="3"
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
@@ -146,20 +146,20 @@ export default function PostCard({ post }) {
             <div className="flex gap-2 justify-end">
               <button 
                 onClick={() => { setIsEditing(false); setEditText(currentText); }} 
-                className="text-xs px-3 py-1.5 rounded-md hover:bg-white/10 text-slate-300 transition-colors"
+                className="text-xs px-3 py-1.5 rounded-md hover:bg-slate-100 text-slate-600 transition-colors font-bold"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleEditSubmit} 
-                className="text-xs px-3 py-1.5 rounded-md bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors font-medium border border-emerald-500/20"
+                className="text-xs px-3 py-1.5 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors font-bold border border-blue-200"
               >
                 Save
               </button>
             </div>
           </div>
         ) : (
-          <div className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+          <div className="text-slate-700 leading-relaxed whitespace-pre-wrap font-medium">
             {currentText}
           </div>
         )}
@@ -167,19 +167,19 @@ export default function PostCard({ post }) {
 
       {/* Media */}
       {post.media?.length > 0 && (
-        <div className="mb-4 rounded-xl overflow-hidden border border-white/5 shadow-inner bg-black/20">
+        <div className="mb-4 rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50">
           <img src={post.media[0].url} className="w-full max-h-96 object-contain" alt="Post attachment" />
         </div>
       )}
 
       {/* Stats row */}
-      <div className="flex justify-between items-center text-xs text-slate-400 font-medium border-b border-white/10 pb-3 mb-2">
-        <div className="flex items-center gap-1.5 cursor-pointer hover:text-emerald-400 transition-colors">
-           <div className="w-4 h-4 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center"><FaThumbsUp size={8}/></div>
+      <div className="flex justify-between items-center text-xs text-slate-500 font-bold border-b border-slate-100 pb-3 mb-2">
+        <div className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600 transition-colors">
+           <div className="w-4 h-4 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><FaThumbsUp size={8}/></div>
            {likes} {likes === 1 ? 'Like' : 'Likes'}
         </div>
         <div 
-          className="cursor-pointer hover:text-emerald-400 transition-colors"
+          className="cursor-pointer hover:text-blue-600 transition-colors"
           onClick={() => setShowComments(!showComments)}
         >
           {post.comments?.length || 0} Comments
@@ -187,16 +187,16 @@ export default function PostCard({ post }) {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 text-sm text-slate-300 font-semibold pt-1">
+      <div className="flex gap-2 text-sm text-slate-500 font-bold pt-1">
         <button 
           onClick={handleLike} 
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${liked ? 'text-emerald-400 bg-emerald-500/10' : 'hover:bg-white/5 hover:text-white'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${liked ? 'text-blue-600 bg-blue-50' : 'hover:bg-slate-50 hover:text-blue-600'}`}
         >
           <FaThumbsUp className={liked ? 'scale-110 transition-transform' : ''} /> {liked ? 'Liked' : 'Like'}
         </button>
         <button 
           onClick={() => setShowComments(!showComments)} 
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg hover:bg-white/5 hover:text-white transition-all"
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg hover:bg-slate-50 hover:text-blue-600 transition-all"
         >
           <FaRegCommentDots /> Comment
         </button>

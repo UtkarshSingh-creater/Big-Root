@@ -53,14 +53,14 @@ export default function CollegeSelect() {
 
       <div className="card w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome</h1>
-          <p className="text-muted">Select your college to join your exclusive network</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 mb-2">Welcome</h1>
+          <p className="text-slate-500 font-medium">Select your college to join your exclusive network</p>
         </div>
 
         <div className="space-y-6">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <FaGraduationCap className="text-emerald-500" />
+              <FaGraduationCap className="text-blue-500" />
             </div>
             <select
               onChange={(e) => setCollege(e.target.value)}
@@ -74,7 +74,7 @@ export default function CollegeSelect() {
             </select>
           </div>
 
-          <button onClick={handleNext} className="btn-primary w-full shadow-lg shadow-emerald-500/20">
+          <button onClick={handleNext} className="btn-primary w-full text-lg shadow-[0_10px_20px_-10px_rgba(37,99,235,0.5)]">
             Continue All Network Access
           </button>
         </div>
