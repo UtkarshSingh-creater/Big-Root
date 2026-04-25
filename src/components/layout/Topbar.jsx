@@ -33,13 +33,20 @@ export default function Topbar() {
           }
 
           // 2. Pre-populate stored remote notifications instead of faking them
-          if (notifRes.data && Array.isArray(notifRes.data)) {
-             setNotifications(notifRes.data.map(n => ({
+          const notifs = notifRes.data?.notifications || (Array.isArray(notifRes.data) ? notifRes.data : []);
+          if (notifs.length) {
+             setNotifications(notifs.map(n => ({
                 id: n._id || Math.random(),
-                initial: n.message?.[0] || "✦",
-                bg: "bg-blue-500",
-                text: n.message,
-                time: new Date(n.createdAt || Date.now()).toLocaleDateString()
+                initial: n.sender?.name?.[0] || n.message?.[0] || "✦",
+                bg: n.type === "connection_request" ? "bg-indigo-500" : "bg-blue-500",
+                text: n.type === "connection_request" && n.sender?.name
+                   ? `${n.sender.name} sent you a connection request`
+                   : n.message,
+                time: new Date(n.createdAt || Date.now()).toLocaleDateString(),
+                type: n.type || null,
+                sender: n.sender?._id || n.sender || null,
+                senderName: n.sender?.name || null,
+                senderPhoto: n.sender?.profilePhoto || null
              })));
           }
        } catch (err) {
@@ -49,16 +56,23 @@ export default function Topbar() {
     loadData();
     
     // ✅ Connect socket and register user with backend (emits `join` after confirmed connect)
-    connectSocket();
+    connectSocket();
 
     // 1. Listen for real backend WebSocket notifications
     const handleBackendNotification = (data) => {
+       const isConnReq = data.type === "connection_request";
        setNotifications(prev => [{ 
-         id: Date.now(), 
-         initial: data?.message?.[0] || "✦", 
-         bg: "bg-blue-500", 
-         text: data.message || "New activity detected.", 
-         time: "Just now" 
+         id: data._id || Date.now(), 
+         initial: data.senderName?.[0] || data?.message?.[0] || "✦", 
+         bg: isConnReq ? "bg-indigo-500" : "bg-blue-500", 
+         text: isConnReq && data.senderName
+            ? `${data.senderName} sent you a connection request`
+            : (data.message || "New activity detected."), 
+         time: "Just now",
+         type: data.type || null,
+         sender: data.sender || null,
+         senderName: data.senderName || null,
+         senderPhoto: data.senderPhoto || null
        }, ...prev]);
        toast.success(data.message || "New notification!", { icon: "🔔" });
     };
@@ -96,14 +110,11 @@ export default function Topbar() {
 
   const handleRespond = async (nId, senderId, action) => {
      try {
-        // Find the connectionId from notifications (if stored) or use senderId
-        // The backend respond API needs connectionId. 
-        // We'll need to fetch connections to find the matching one, 
-        // OR better yet, have the notification contain the connectionId.
-        
-        const connectionsRes = await API.get("/connection/my");
-        const conn = (connectionsRes.data || []).find(c => 
-           String(c.sender?._id || c.sender) === String(senderId) && c.status === "pending"
+        // Fetch pending incoming requests — /connection/my only returns accepted connections
+        const connectionsRes = await API.get("/connection/requests");
+        const pendingList = connectionsRes.data?.requests || connectionsRes.data || [];
+        const conn = pendingList.find(c => 
+           String(c.sender?._id || c.sender) === String(senderId)
         );
 
         if (!conn) {
@@ -200,16 +211,16 @@ export default function Topbar() {
                            {n.type === "connection_request" && n.sender && (
                               <div className="flex gap-2 mt-1 ml-11">
                                  <button 
-                                    onClick={(e) => { e.stopPropagation(); handleRespond(n.id, n.sender, "accepted"); }}
-                                    className="px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded hover:bg-blue-700 transition-colors"
+                                    onClick={(e) => { e.stopPropagation(); handleRespond(n.id, String(n.sender?._id || n.sender), "accepted"); }}
+                                    className="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[11px] font-bold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                                  >
-                                    Accept
+                                    ✓ Accept
                                  </button>
                                  <button 
-                                    onClick={(e) => { e.stopPropagation(); handleRespond(n.id, n.sender, "rejected"); }}
-                                    className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded hover:bg-slate-200 transition-colors"
+                                    onClick={(e) => { e.stopPropagation(); handleRespond(n.id, String(n.sender?._id || n.sender), "rejected"); }}
+                                    className="px-4 py-1.5 bg-slate-100 text-slate-600 text-[11px] font-bold rounded-lg hover:bg-red-50 hover:text-red-600 transition-all border border-slate-200 hover:border-red-200"
                                  >
-                                    Reject
+                                    ✕ Reject
                                  </button>
                               </div>
                            )}
