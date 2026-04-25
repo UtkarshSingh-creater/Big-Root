@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../../components/layout/Layout";
 import PostCard from "../../components/post/PostCard";
-import { FaUserPlus, FaCheck, FaSpinner, FaArrowLeft } from "react-icons/fa";
+import { FaUserPlus, FaCheck, FaSpinner, FaArrowLeft, FaCommentDots } from "react-icons/fa";
 import API from "../../api/index";
 import { sendConnection, getConnections } from "../../api/connection";
 import { getUserProfileById } from "../../api/user";
@@ -20,7 +20,6 @@ export default function PublicProfile() {
   const currentUser = JSON.parse(localStorage.getItem("user")) || {};
 
   useEffect(() => {
-    // If the user clicks on their own profile maliciously mapped or indirectly, push them back to their edit page natively
     if (id === currentUser._id || id === currentUser.id) {
        navigate("/profile", { replace: true });
        return;
@@ -29,10 +28,7 @@ export default function PublicProfile() {
     const fetchPublicData = async () => {
       try {
         const [profileRes, connRes] = await Promise.all([
-          getUserProfileById(id).catch((err) => {
-             console.error("Profile fetch error:", err);
-             return { data: null };
-          }),
+          getUserProfileById(id).catch(() => ({ data: null })),
           getConnections().catch(() => ({ data: [] }))
         ]);
 
@@ -43,33 +39,24 @@ export default function PublicProfile() {
         }
 
         setProfile(profileRes.data.user);
+        setPosts(profileRes.data.posts || []);
         
-        // Use posts from profile endpoint if available (paginated/embedded), otherwise fetch explicit posts
-        if (profileRes.data.posts) {
-           setPosts(profileRes.data.posts);
+        // Use connectionStatus from backend if available, otherwise fallback to frontend check
+        if (profileRes.data.connectionStatus) {
+           setConnectionStatus(profileRes.data.connectionStatus);
         } else {
-           try {
-              const explicitUserPosts = await API.get(`/post/user/${id}`);
-              setPosts(explicitUserPosts.data?.posts || []);
-           } catch (e) {
-              setPosts([]);
+           const myConns = Array.isArray(connRes.data) ? connRes.data : (connRes.data.connections || []);
+           const establishedConn = myConns.find(c => 
+             (c.sender?._id === id || c.sender === id || c.receiver?._id === id || c.receiver === id)
+           );
+           if (establishedConn) {
+              setConnectionStatus(establishedConn.status);
            }
-        }
-
-        // Handle array returned directly vs nested data object
-        const myConns = Array.isArray(connRes.data) ? connRes.data : (connRes.data.connections || []);
-
-        // Filter Connection Params
-        const establishedConn = myConns.find(c => 
-          (c.recipient?._id === id || c.sender?._id === id || c.recipient === id || c.sender === id)
-        );
-        if (establishedConn) {
-           setConnectionStatus(establishedConn.status || "pending");
         }
 
       } catch (e) {
         console.error(e);
-        toast.error("Failed to load public data");
+        toast.error("Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -82,16 +69,35 @@ export default function PublicProfile() {
     try {
       await sendConnection(id);
       toast.success("Connection request sent!");
-      setConnectionStatus("pending");
-
-      // 🔔 Emit real-time socket event so receiver gets instant notification
-      const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+      setConnectionStatus("pending_sent");
       socket.emit("sendConnectionRequest", {
         senderId: currentUser._id || currentUser.id,
         receiverId: id,
       });
     } catch(e) {
       toast.error(e.response?.data?.msg || "Failed to send connection");
+    }
+  };
+
+  const handleRespond = async (action) => {
+    try {
+      const connRes = await getConnections();
+      const myConns = Array.isArray(connRes.data) ? connRes.data : (connRes.data.connections || []);
+      const conn = myConns.find(c => String(c.sender?._id || c.sender) === String(id) && c.status === "pending");
+
+      if (!conn) {
+        toast.error("Process interrupted. Try reloading.");
+        return;
+      }
+
+      await API.post(`/connection/respond/${conn._id}`, { action });
+      toast.success(`Connection ${action}!`);
+      setConnectionStatus(action === "accepted" ? "connected" : "connect");
+
+      const event = action === "accepted" ? "acceptConnectionRequest" : "rejectConnectionRequest";
+      socket.emit(event, { senderId: id, receiverId: currentUser._id });
+    } catch (e) {
+      toast.error("Failed to respond.");
     }
   };
 
@@ -119,14 +125,11 @@ export default function PublicProfile() {
   return (
     <Layout>
       <div className="card overflow-hidden mb-6">
-        {/* Cover Graphic */}
         <div className="h-32 bg-gradient-to-r from-blue-500/20 via-blue-600/20 to-blue-900/40 relative">
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
         </div>
 
         <div className="p-8 relative">
-          
-          {/* Avatar Area */}
           <div className="absolute -top-16 left-8">
             <div className="w-32 h-32 rounded-full border-4 border-[#151f24] shadow-2xl bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-4xl font-bold text-white overflow-hidden">
                {profile.profilePhoto ? (
@@ -144,14 +147,26 @@ export default function PublicProfile() {
             </div>
 
             <div>
-               {connectionStatus === "connected" ? (
-                 <button className="flex items-center gap-2 px-6 py-2.5 rounded bg-white/5 text-slate-300 font-semibold cursor-default">
-                   <FaCheck /> Connected
+               {connectionStatus === "connected" || connectionStatus === "accepted" ? (
+                 <button 
+                  onClick={() => navigate(`/messaging?chat=${id}`)}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all"
+                 >
+                   <FaCommentDots /> Message
                  </button>
-               ) : connectionStatus === "pending" || connectionStatus === "requested" ? (
+               ) : connectionStatus === "pending" || connectionStatus === "pending_sent" ? (
                  <button className="flex items-center gap-2 px-6 py-2.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold cursor-default">
                    Pending
                  </button>
+               ) : connectionStatus === "pending_received" ? (
+                  <div className="flex gap-2">
+                    <button onClick={() => handleRespond("accepted")} className="flex items-center gap-2 px-6 py-2.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all">
+                      Accept
+                    </button>
+                    <button onClick={() => handleRespond("rejected")} className="flex items-center gap-2 px-6 py-2.5 rounded bg-white/5 hover:bg-white/10 text-white font-bold transition-all border border-white/10">
+                      Reject
+                    </button>
+                  </div>
                ) : (
                  <button onClick={handleConnect} className="flex items-center gap-2 px-6 py-2.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-colors">
                    <FaUserPlus /> Connect
@@ -170,14 +185,13 @@ export default function PublicProfile() {
           <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex gap-8">
              <div className="flex-1">
                <label className="block text-[10px] font-bold text-slate-500 mb-1 tracking-wider uppercase">College Identity</label>
-               <div className="text-white font-medium">{profile.college || "N/A"}</div>
+               <div className="text-white font-medium">{profile.collegeName || profile.college || "N/A"}</div>
              </div>
              <div className="flex-1">
                <label className="block text-[10px] font-bold text-slate-500 mb-1 tracking-wider uppercase">Auth Directory</label>
-               <div className="text-white font-medium text-sm">{profile.email || profile.identifier || "hidden"}</div>
+               <div className="text-white font-medium text-sm">{profile.email || "hidden@college.edu"}</div>
              </div>
           </div>
-
         </div>
       </div>
 
@@ -194,7 +208,6 @@ export default function PublicProfile() {
            ))}
          </div>
       )}
-
     </Layout>
   );
 }

@@ -94,6 +94,39 @@ export default function Topbar() {
     { icon: <FaBell className="text-2xl" />, label: "Alerts", action: () => { setAlertsOpen(!alertsOpen); setOpen(false); } },
   ];
 
+  const handleRespond = async (nId, senderId, action) => {
+     try {
+        // Find the connectionId from notifications (if stored) or use senderId
+        // The backend respond API needs connectionId. 
+        // We'll need to fetch connections to find the matching one, 
+        // OR better yet, have the notification contain the connectionId.
+        
+        const connectionsRes = await API.get("/connection/my");
+        const conn = (connectionsRes.data || []).find(c => 
+           String(c.sender?._id || c.sender) === String(senderId) && c.status === "pending"
+        );
+
+        if (!conn) {
+           toast.error("Could not find matching request.");
+           return;
+        }
+
+        await API.post(`/connection/respond/${conn._id}`, { action });
+        toast.success(`Request ${action}!`);
+        
+        // Remove from list
+        setNotifications(prev => prev.filter(n => n.id !== nId));
+
+        // Real-time broadcast
+        const event = action === "accepted" ? "acceptConnectionRequest" : "rejectConnectionRequest";
+        socket.emit(event, { senderId, receiverId: user?._id });
+
+     } catch (e) {
+        console.error(e);
+        toast.error("Action failed.");
+     }
+  };
+
   return (
     <div className="h-[64px] fixed top-0 w-full bg-white/90 backdrop-blur-xl border-b border-slate-200 z-50 flex justify-center shadow-sm">
       <div className="max-w-7xl w-full px-4 flex items-center justify-between">
@@ -154,12 +187,32 @@ export default function Topbar() {
                       <div className="p-8 text-center text-slate-500 text-sm font-medium">All caught up!</div>
                    ) : (
                       notifications.map(n => (
-                        <div key={n.id} className="p-4 hover:bg-slate-50 border-b border-slate-100 cursor-pointer transition-colors flex gap-3">
-                           <div className={`w-8 h-8 rounded-full ${n.bg} flex items-center justify-center text-white font-bold text-xs shrink-0 flex-col pt-0.5`}>{n.initial}</div>
-                           <div>
-                              <div className="text-sm text-slate-700 font-medium">{n.text}</div>
-                              <div className="text-[10px] text-blue-500 font-semibold mt-1">{n.time}</div>
+                        <div key={n.id} className="p-4 hover:bg-slate-50 border-b border-slate-100 cursor-pointer transition-colors flex flex-col gap-2">
+                           <div className="flex gap-3">
+                              <div className={`w-8 h-8 rounded-full ${n.bg} flex items-center justify-center text-white font-bold text-xs shrink-0 flex-col pt-0.5`}>{n.initial}</div>
+                              <div className="flex-1">
+                                 <div className="text-sm text-slate-700 font-medium">{n.text}</div>
+                                 <div className="text-[10px] text-blue-500 font-semibold mt-1">{n.time}</div>
+                              </div>
                            </div>
+                           
+                           {/* ACCEPT / REJECT BUTTONS FOR CONNECTION REQUESTS */}
+                           {n.type === "connection_request" && n.sender && (
+                              <div className="flex gap-2 mt-1 ml-11">
+                                 <button 
+                                    onClick={(e) => { e.stopPropagation(); handleRespond(n.id, n.sender, "accepted"); }}
+                                    className="px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded hover:bg-blue-700 transition-colors"
+                                 >
+                                    Accept
+                                 </button>
+                                 <button 
+                                    onClick={(e) => { e.stopPropagation(); handleRespond(n.id, n.sender, "rejected"); }}
+                                    className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded hover:bg-slate-200 transition-colors"
+                                 >
+                                    Reject
+                                 </button>
+                              </div>
+                           )}
                         </div>
                       ))
                    )}
