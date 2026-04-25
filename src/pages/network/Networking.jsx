@@ -80,17 +80,18 @@ export default function Networking() {
       await respondToConnection(connectionId, action);
       toast.success(`Request ${action === "accepted" ? "accepted" : "rejected"}!`);
       
-      // 🔔 Emit real-time response
-      socket.emit("respondConnection", {
-        senderId: currentUserId,
-        receiverId: otherUserId,
+      // 🔔 Emit real-time response using the specific event names the backend expects
+      const eventName = action === "accepted" ? "acceptConnectionRequest" : "rejectConnectionRequest";
+      socket.emit(eventName, {
+        senderId: otherUserId, // The original sender of the request
+        receiverId: currentUserId, // Me (the one who responded)
         status: action
       });
 
       fetchData();
     } catch (e) {
       console.error(e);
-      toast.error("Failed to respond to request");
+      toast.error(e.response?.data?.msg || "Failed to respond to request");
     }
   };
 
